@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle Financeiro Comercial</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-gray-100">
+    <!-- Header -->
+    <header class="bg-blue-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <h1 class="text-2xl font-bold">💰 Controle Financeiro</h1>
+            <p class="text-sm opacity-90">Gerenciamento de contas e entradas comerciais</p>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md sticky top-0 z-10">
+        <div class="container mx-auto px-4">
+            <div class="flex space-x-1">
+                <button onclick="showSection('dashboard')" class="nav-btn px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 border-b-2 border-transparent hover:border-blue-600 transition-all">
+                    📊 Dashboard
+                </button>
+                <button onclick="showSection('contas')" class="nav-btn px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 border-b-2 border-transparent hover:border-blue-600 transition-all">
+                    📋 Contas à Pagar
+                </button>
+                <button onclick="showSection('entradas')" class="nav-btn px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 border-b-2 border-transparent hover:border-blue-600 transition-all">
+                    💵 Entradas
+                </button>
+                <button onclick="showSection('relatorios')" class="nav-btn px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 border-b-2 border-transparent hover:border-blue-600 transition-all">
+                    📈 Relatórios
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-6">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="content-section">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Resumo Financeiro -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">💰 Saldo Atual</h3>
+                    <p class="text-3xl font-bold text-green-600" id="saldoAtual">R$ 0,00</p>
+                    <p class="text-sm text-gray-500 mt-2">Lucro/Prejuízo do período</p>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">📋 Contas à Pagar</h3>
+                    <p class="text-3xl font-bold text-red-600" id="totalContas">R$ 0,00</p>
+                    <p class="text-sm text-gray-500 mt-2" id="contasVencidas">0 contas vencidas</p>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">💵 Entradas do Mês</h3>
+                    <p class="text-3xl font-bold text-blue-600" id="totalEntradas">R$ 0,00</p>
+                    <p class="text-sm text-gray-500 mt-2" id="mediaDiaria">R$ 0,00 média/dia</p>
+                </div>
+            </div>
+
+            <!-- Gráficos -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Evolução Financeira</h3>
+                    <canvas id="evolucaoChart"></canvas>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Distribuição de Entradas</h3>
+                    <canvas id="distribuicaoChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contas à Pagar Section -->
+        <section id="contas" class="content-section hidden">
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">➕ Adicionar Nova Conta</h2>
+                <form id="contaForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <input type="text" id="empresa" placeholder="Empresa" required
+                           class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <input type="number" id="valor" placeholder="Valor (R$)" step="0.01" required
+                           class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <input type="date" id="dataVencimento" required
+                           class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <input type="text" id="especificacao" placeholder="Especificação (código barras, PIX, etc.)"
+                           class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <select id="status" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="à pagar">À Pagar</option>
+                        <option value="pago">Pago</option>
+                    </select>
+                    <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        Adicionar Conta
+                    </button>
+                </form>
+            </div>
+
+            <!-- Lista de Contas -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-gray-800">📋 Lista de Contas</h2>
+                    <div class="flex gap-2">
+                        <select id="filtroStatus" class="px-3 py-1 border border-gray-300 rounded-lg text-sm">
+                            <option value="todos">Todos</option>
+                            <option value="à pagar">À Pagar</option>
+                            <option value="pago">Pago</option>
+                        </select>
+                        <input type="month" id="filtroMes" class="px-3 py-1 border border-gray-300 rounded-lg text-sm">
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full table-auto">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Empresa</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Valor</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Vencimento</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Especificação</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Status</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contasTableBody">
+                            <!-- Contas serão inseridas aqui via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Entradas Section -->
+        <section id="entradas" class="content-section hidden">
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">💵 Registrar Nova Entrada</h2>
+                <form id="entradaForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <input type="date" id="dataEntrada" required
+                           class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <input type="number" id="valorEntrada" placeholder="Valor (R$)" step="0.01" required
+                           class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <select id="tipoEntrada" required
+                            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Selecione...</option>
+                        <option value="Voucher">Voucher</option>
+                        <option value="Débito">Débito</option>
+                        <option value="Crédito">Crédito</option>
+                        <option value="Pix">Pix</option>
+                        <option value="Dinheiro">Dinheiro</option>
+                    </select>
+                    <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                        Registrar Entrada
+                    </button>
+                </form>
+            </div>
+
+            <!-- Lista de Entradas -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-gray-800">📈 Histórico de Entradas</h2>
+                    <div class="flex gap-2">
+                        <select id="filtroTipo" class="px-3 py-1 border border-gray-300 rounded-lg text-sm">
+                            <option value="todos">Todos</option>
+                            <option value="Voucher">Voucher</option>
+                            <option value="Débito">Débito</option>
+                            <option value="Crédito">Crédito</option>
+                            <option value="Pix">Pix</option>
+                            <option value="Dinheiro">Dinheiro</option>
+                        </select>
+                        <input type="month" id="filtroMesEntradas" class="px-3 py-1 border border-gray-300 rounded-lg text-sm">
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full table-auto">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Data</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Valor</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Tipo</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="entradasTableBody">
+                            <!-- Entradas serão inseridas aqui via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Relatórios Section -->
+        <section id="relatorios" class="content-section hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Relatório Mensal</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Selecione o Mês</label>
+                            <input type="month" id="relatorioMes" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <button onclick="gerarRelatorioMensal()" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                            Gerar Relatório
+                        </button>
+                        <div id="relatorioResultado" class="hidden">
+                            <!-- Resultado do relatório -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Exportar Dados</h3>
+                    <div class="space-y-3">
+                        <button onclick="exportarDados('csv')" class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                            📊 Exportar CSV
+                        </button>
+                        <button onclick="exportarDados('json')" class="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                            📄 Exportar JSON
+                        </button>
+                        <button onclick="imprimirRelatorio()" class="w-full bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                            🖨️ Imprimir Relatório
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-4 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-sm">© 2024 Controle Financeiro Comercial - Sistema Local</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/storage.js"></script>
+    <script src="js/contas.js"></script>
+    <script src="js/entradas.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

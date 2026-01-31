@@ -1,0 +1,30 @@
+{
+  "name": "controle-financeiro-comercial",
+  "version": "1.0.0",
+  "description": "Sistema simples de controle financeiro para comércio local",
+  "main": "index.html",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "serve": "npx http-server . -p 3000 -o",
+    "build": "echo 'Build completed - files are ready for deployment'"
+  },
+  "keywords": [
+    "financeiro",
+    "controle",
+    "comercio",
+    "local",
+    "javascript"
+  ],
+  "author": "Seu Nome",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
