@@ -33,6 +33,9 @@
                 <button onclick="showSection('relatorios')" class="nav-btn px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 border-b-2 border-transparent hover:border-blue-600 transition-all">
                     📈 Relatórios
                 </button>
+                 <button onclick="showSection('calculadora')" class="nav-btn px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 border-b-2 border-transparent hover:border-blue-600 transition-all">
+                    ➕ Calculadora
+                </button>
             </div>
         </div>
     </nav>
@@ -41,24 +44,41 @@
     <main class="container mx-auto px-4 py-6">
         <!-- Dashboard Section -->
         <section id="dashboard" class="content-section">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Seletor de Mês -->
+            <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-gray-800">📊 Dashboard</h2>
+                    <div class="flex items-center gap-2">
+                        <label for="dashboardMes" class="text-sm font-medium text-gray-700">Mês de Referência:</label>
+                        <input type="month" id="dashboardMes" class="px-3 py-1 border border-gray-300 rounded-lg text-sm">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 <!-- Resumo Financeiro -->
                 <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-2">💰 Saldo Atual</h3>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">💰 Saldo do Mês</h3>
                     <p class="text-3xl font-bold text-green-600" id="saldoAtual">R$ 0,00</p>
-                    <p class="text-sm text-gray-500 mt-2">Lucro/Prejuízo do período</p>
+                    <p class="text-sm text-gray-500 mt-2">Entradas - Saídas do período</p>
                 </div>
                 
                 <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-2">📋 Contas à Pagar</h3>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">🟢 Entradas do Mês</h3>
+                    <p class="text-3xl font-bold text-blue-600" id="totalEntradas">R$ 0,00</p>
+                    <p class="text-sm text-gray-500 mt-2" id="qtdEntradas">0 entradas</p>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">📋 Contas Pagas</h3>
+                    <p class="text-3xl font-bold text-green-600" id="contasPagas">R$ 0,00</p>
+                    <p class="text-sm text-gray-500 mt-2" id="qtdContasPagas">0 contas pagas</p>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">🟠 Contas à Pagar</h3>
                     <p class="text-3xl font-bold text-red-600" id="totalContas">R$ 0,00</p>
                     <p class="text-sm text-gray-500 mt-2" id="contasVencidas">0 contas vencidas</p>
-                </div>
-                
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-2">💵 Entradas do Mês</h3>
-                    <p class="text-3xl font-bold text-blue-600" id="totalEntradas">R$ 0,00</p>
-                    <p class="text-sm text-gray-500 mt-2" id="mediaDiaria">R$ 0,00 média/dia</p>
                 </div>
             </div>
 
@@ -66,12 +86,16 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <h3 class="text-lg font-semibold text-gray-700 mb-4">Evolução Financeira</h3>
-                    <canvas id="evolucaoChart"></canvas>
+                    <div class="chart-container">
+                        <canvas id="evolucaoChart"></canvas>
+                    </div>
                 </div>
                 
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <h3 class="text-lg font-semibold text-gray-700 mb-4">Distribuição de Entradas</h3>
-                    <canvas id="distribuicaoChart"></canvas>
+                    <div class="chart-container">
+                        <canvas id="distribuicaoChart"></canvas>
+                    </div>
                 </div>
             </div>
         </section>
@@ -199,6 +223,21 @@
             </div>
         </section>
 
+        <!-- Calculadora Section -->
+        <section id="calculadora" class="content-section hidden">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Calculadora de Precificação</h3>       
+                <button onclick="abrirCalculadora()"  class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                    🟰 Abrir calculadora
+                </button>
+                <script>
+                    function abrirCalculadora() {
+                    fetch("/calcular");
+                    }
+                </script>
+            </div>
+        </section>
+
         <!-- Relatórios Section -->
         <section id="relatorios" class="content-section hidden">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -239,7 +278,7 @@
     <!-- Footer -->
     <footer class="bg-gray-800 text-white py-4 mt-12">
         <div class="container mx-auto px-4 text-center">
-            <p class="text-sm">© 2024 Controle Financeiro Comercial - Sistema Local</p>
+            <p class="text-sm">© 2026 Controle Financeiro Comercial - Sistema Local</p>
         </div>
     </footer>
 

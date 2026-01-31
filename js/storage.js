@@ -183,7 +183,7 @@ class StorageManager {
             return dataEntrada.getMonth() === mesAtual && dataEntrada.getFullYear() === anoAtual;
         });
 
-        const totalEntradasMes = entradasMes.reduce((sum, e) => sum + parseFloat(e.valor), 0);
+        const totalEntradasMes = entradasMes.reduce((sum, e) => sum + parseFloat(e.valorBruto || e.valor), 0);
 
         // Agrupar entradas por tipo
         const entradasPorTipo = {};
@@ -191,7 +191,7 @@ class StorageManager {
             if (!entradasPorTipo[entrada.tipoEntrada]) {
                 entradasPorTipo[entrada.tipoEntrada] = 0;
             }
-            entradasPorTipo[entrada.tipoEntrada] += parseFloat(entrada.valor);
+            entradasPorTipo[entrada.tipoEntrada] += parseFloat(entrada.valorBruto || entrada.valor);
         });
 
         return {

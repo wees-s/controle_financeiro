@@ -68,8 +68,7 @@ table tbody tr:hover {
 /* Estilos para inputs de formulário */
 .form-input:focus {
     outline: none;
-    ring: 2px;
-    ring-color: #2563eb;
+    border: 2px solid #2563eb;
     border-color: transparent;
 }
 
@@ -151,6 +150,17 @@ table tbody tr:hover {
     position: relative;
     height: 300px;
     width: 100%;
+}
+
+/* Limitar altura do dashboard */
+#dashboard {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+
+/* Evitar rolagem infinita */
+.content-section {
+    min-height: calc(100vh - 200px);
 }
 
 /* Estilos para notificações */

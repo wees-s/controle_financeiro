@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Entradas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <h1 class="text-2xl font-bold mb-6">Teste de Registro de Entrada</h1>
+    
+    <form id="entradaForm" class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-xl font-bold mb-4">Registrar Nova Entrada</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <input type="date" id="dataEntrada" required
+                   class="px-4 py-2 border border-gray-300 rounded-lg">
+            <input type="number" id="valorEntrada" placeholder="Valor (R$)" step="0.01" required
+                   class="px-4 py-2 border border-gray-300 rounded-lg">
+            <select id="tipoEntrada" required
+                    class="px-4 py-2 border border-gray-300 rounded-lg">
+                <option value="">Selecione...</option>
+                <option value="Voucher">Voucher</option>
+                <option value="Débito">Débito</option>
+                <option value="Crédito">Crédito</option>
+                <option value="Pix">Pix</option>
+                <option value="Dinheiro">Dinheiro</option>
+            </select>
+            <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-lg">
+                Registrar Entrada
+            </button>
+        </div>
+    </form>
+    
+    <div id="resultado" class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-bold mb-4">Resultado</h2>
+        <div id="logs" class="bg-gray-100 p-4 rounded font-mono text-sm"></div>
+    </div>
+
+    <script>
+        // Regras de entrada
+        const EntradaRules = { 
+            'Voucher': (valor) => valor * 0.88,
+            'Débito': (valor) => valor * 0.98,
+            'Crédito': (valor) => valor * 0.965,
+            'Pix': (valor) => valor * 0.98,
+            'Dinheiro': (valor) => valor * 0.99
+        };
+
+        function log(mensagem) {
+            const logsDiv = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            logsDiv.innerHTML += `[${timestamp}] ${mensagem}<br>`;
+            console.log(mensagem);
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            log('Página carregada');
+            
+            // Definir data atual
+            document.getElementById('dataEntrada').value = new Date().toISOString().split('T')[0];
+            
+            // Adicionar listener ao formulário
+            const form = document.getElementById('entradaForm');
+            if (form) {
+                log('Formulário encontrado');
+                form.addEventListener('submit', (e) => {
+                    log('Evento submit disparado!');
+                    e.preventDefault();
+                    processarEntrada();
+                });
+            } else {
+                log('ERRO: Formulário não encontrado');
+            }
+        });
+
+        function processarEntrada() {
+            log('Processando entrada...');
+            
+            const dataEntrada = document.getElementById('dataEntrada').value;
+            const valor = parseFloat(document.getElementById('valorEntrada').value);
+            const tipoEntrada = document.getElementById('tipoEntrada').value;
+            
+            log(`Dados: ${dataEntrada}, ${valor}, ${tipoEntrada}`);
+
+            if (!dataEntrada || isNaN(valor) || !tipoEntrada) {
+                log('ERRO: Preencha todos os campos!');
+                alert('Preencha todos os campos!');
+                return;
+            }
+
+            const regra = EntradaRules[tipoEntrada];
+            log(`Regra para ${tipoEntrada}: ${regra}`);
+
+            if (!regra) {
+                log('ERRO: Tipo de entrada inválido!');
+                alert('Tipo de entrada inválido!');
+                return;
+            }
+
+            const valorCalculado = regra(valor);
+            log(`Valor calculado: ${valorCalculado}`);
+
+            const entrada = {
+                dataEntrada,
+                valorBruto: valor,
+                valorCalculado,
+                tipoEntrada
+            };
+
+            log(`Entrada criada: ${JSON.stringify(entrada, null, 2)}`);
+            alert('Entrada registrada com sucesso! Veja o console para detalhes.');
+        }
+    </script>
+</body>
+</html>

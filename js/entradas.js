@@ -1,5 +1,13 @@
 // Gerenciamento de entradas financeiras
 
+const EntradaRules = { 
+    'Voucher': (valor) => valor * 0.88,
+    'Débito': (valor) => valor * 0.98,
+    'Crédito': (valor) => valor * 0.965,
+    'Pix': (valor) => valor * 0.98,
+    'Dinheiro': (valor) => valor * 0.99
+}
+
 class EntradasManager {
     constructor() {
         this.entradas = [];
@@ -44,25 +52,34 @@ class EntradasManager {
         const valor = parseFloat(document.getElementById('valorEntrada').value);
         const tipoEntrada = document.getElementById('tipoEntrada').value;
 
-        if (!dataEntrada || !valor || !tipoEntrada) {
+        if (!dataEntrada || isNaN(valor) || !tipoEntrada) {
             this.mostrarNotificacao('Preencha todos os campos!', 'error');
             return;
         }
 
+        const regra = EntradaRules[tipoEntrada];
+
+        if (!regra) {
+            this.mostrarNotificacao('Tipo de entrada inválido!', 'error');
+            return;
+        }
+
+        const valorCalculado = regra(valor);
+
         const entrada = {
             dataEntrada,
-            valor,
+            valorBruto: valor,
+            valorCalculado,
             tipoEntrada
         };
 
         const novaEntrada = storage.adicionarEntrada(entrada);
         this.entradas.push(novaEntrada);
-        
+
         this.limparFormulario();
         this.renderizarEntradas();
         this.mostrarNotificacao('Entrada registrada com sucesso!', 'success');
-        
-        // Atualizar dashboard
+
         if (typeof dashboard !== 'undefined') {
             dashboard.atualizarDados();
         }
@@ -74,7 +91,7 @@ class EntradasManager {
 
         // Preencher formulário com dados da entrada
         document.getElementById('dataEntrada').value = entrada.dataEntrada;
-        document.getElementById('valorEntrada').value = entrada.valor;
+        document.getElementById('valorEntrada').value = entrada.valorBruto;
         document.getElementById('tipoEntrada').value = entrada.tipoEntrada;
 
         // Remover entrada atual para edição
@@ -156,7 +173,10 @@ class EntradasManager {
 
             tr.innerHTML = `
                 <td class="px-4 py-3">${this.formatarData(entrada.dataEntrada)}</td>
-                <td class="px-4 py-3 font-semibold text-green-600">R$ ${parseFloat(entrada.valor).toFixed(2)}</td>
+                <td class="px-4 py-3">
+                    <div class="font-semibold text-green-600">R$ ${parseFloat(entrada.valorCalculado).toFixed(2)}</div>
+                    <div class="text-xs text-gray-500">Bruto: R$ ${parseFloat(entrada.valorBruto).toFixed(2)}</div>
+                </td>
                 <td class="px-4 py-3">
                     <span class="px-2 py-1 rounded-full text-xs font-medium ${corTipo}">
                         ${entrada.tipoEntrada}
@@ -233,7 +253,7 @@ class EntradasManager {
                 };
             }
             entradasPorTipo[entrada.tipoEntrada].quantidade++;
-            entradasPorTipo[entrada.tipoEntrada].valor += parseFloat(entrada.valor);
+            entradasPorTipo[entrada.tipoEntrada].valor += parseFloat(entrada.valorCalculado);
         });
 
         // Agrupar por dia (últimos 7 dias)
@@ -245,7 +265,7 @@ class EntradasManager {
             
             const dataStr = data.toISOString().split('T')[0];
             const entradasDia = this.entradas.filter(e => e.dataEntrada === dataStr);
-            const valorDia = entradasDia.reduce((sum, e) => sum + parseFloat(e.valor), 0);
+            const valorDia = entradasDia.reduce((sum, e) => sum + parseFloat(e.valorCalculado), 0);
             
             ultimos7Dias.push({
                 data: dataStr,
@@ -257,9 +277,9 @@ class EntradasManager {
         return {
             total: this.entradas.length,
             totalMes: entradasMes.length,
-            valorMes: entradasMes.reduce((sum, e) => sum + parseFloat(e.valor), 0),
-            valorTotal: this.entradas.reduce((sum, e) => sum + parseFloat(e.valor), 0),
-            mediaDiaria: entradasMes.length > 0 ? entradasMes.reduce((sum, e) => sum + parseFloat(e.valor), 0) / 30 : 0,
+            valorMes: entradasMes.reduce((sum, e) => sum + parseFloat(e.valorCalculado), 0),
+            valorTotal: this.entradas.reduce((sum, e) => sum + parseFloat(e.valorCalculado), 0),
+            mediaDiaria: entradasMes.length > 0 ? entradasMes.reduce((sum, e) => sum + parseFloat(e.valorCalculado), 0) / 30 : 0,
             porTipo: entradasPorTipo,
             ultimos7Dias: ultimos7Dias
         };
@@ -278,13 +298,13 @@ class EntradasManager {
             if (!dadosPorMes[mesAno]) {
                 dadosPorMes[mesAno] = 0;
             }
-            dadosPorMes[mesAno] += parseFloat(entrada.valor);
+            dadosPorMes[mesAno] += parseFloat(entrada.valorCalculado);
 
             // Agrupar por tipo
             if (!dadosPorTipo[entrada.tipoEntrada]) {
                 dadosPorTipo[entrada.tipoEntrada] = 0;
             }
-            dadosPorTipo[entrada.tipoEntrada] += parseFloat(entrada.valor);
+            dadosPorTipo[entrada.tipoEntrada] += parseFloat(entrada.valorCalculado);
         });
 
         return {

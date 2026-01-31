@@ -15,8 +15,25 @@ class DashboardManager {
     setupEventListeners() {
         // Atualizar dados quando a seção dashboard for mostrada
         document.addEventListener('DOMContentLoaded', () => {
+            this.definirMesPadrao();
             this.atualizarDados();
         });
+
+        // Listener para mudança de mês
+        const dashboardMes = document.getElementById('dashboardMes');
+        if (dashboardMes) {
+            dashboardMes.addEventListener('change', () => {
+                this.atualizarDados();
+            });
+        }
+    }
+
+    definirMesPadrao() {
+        const dashboardMes = document.getElementById('dashboardMes');
+        if (dashboardMes && !dashboardMes.value) {
+            const mesAtual = new Date().toISOString().slice(0, 7);
+            dashboardMes.value = mesAtual;
+        }
     }
 
     atualizarDados() {
@@ -25,39 +42,79 @@ class DashboardManager {
     }
 
     atualizarResumoFinanceiro() {
-        const contasResumo = contasManager.obterResumo();
-        const entradasResumo = entradasManager.obterResumo();
+        const mesSelecionado = document.getElementById('dashboardMes')?.value;
+        if (!mesSelecionado) return;
 
-        // Saldo atual
-        const saldo = entradasResumo.valorMes - contasResumo.valorAPagar;
+        const [ano, mes] = mesSelecionado.split('-');
+        
+        // Obter dados filtrados pelo mês selecionado
+        const contasMes = contasManager.contas.filter(c => {
+            const dataVenc = new Date(c.dataVencimento);
+            return dataVenc.getFullYear() === parseInt(ano) && 
+                   (dataVenc.getMonth() + 1) === parseInt(mes);
+        });
+
+        const entradasMes = entradasManager.entradas.filter(e => {
+            const dataEntrada = new Date(e.dataEntrada);
+            return dataEntrada.getFullYear() === parseInt(ano) && 
+                   (dataEntrada.getMonth() + 1) === parseInt(mes);
+        });
+
+        // Calcular totais
+        const totalEntradas = entradasMes.reduce((sum, e) => sum + parseFloat(e.valorCalculado), 0);
+        const totalContasPagas = contasMes.filter(c => c.status === 'pago').reduce((sum, c) => sum + parseFloat(c.valor), 0);
+        const totalContasAPagar = contasMes.filter(c => c.status === 'à pagar').reduce((sum, c) => sum + parseFloat(c.valor), 0);
+        
+        // Saldo do mês (entradas - contas pagas)
+        const saldoMes = totalEntradas - totalContasPagas;
+
+        // Atualizar elementos
         const saldoElement = document.getElementById('saldoAtual');
         if (saldoElement) {
-            saldoElement.textContent = `R$ ${saldo.toFixed(2)}`;
-            saldoElement.className = saldo >= 0 ? 'text-3xl font-bold text-green-600' : 'text-3xl font-bold text-red-600';
-        }
-
-        // Total contas à pagar
-        const totalContasElement = document.getElementById('totalContas');
-        if (totalContasElement) {
-            totalContasElement.textContent = `R$ ${contasResumo.valorAPagar.toFixed(2)}`;
-        }
-
-        // Contas vencidas
-        const contasVencidasElement = document.getElementById('contasVencidas');
-        if (contasVencidasElement) {
-            contasVencidasElement.textContent = `${contasResumo.vencidas} contas vencidas`;
+            saldoElement.textContent = `R$ ${saldoMes.toFixed(2)}`;
+            saldoElement.className = saldoMes >= 0 ? 'text-3xl font-bold text-green-600' : 'text-3xl font-bold text-red-600';
         }
 
         // Total entradas do mês
         const totalEntradasElement = document.getElementById('totalEntradas');
         if (totalEntradasElement) {
-            totalEntradasElement.textContent = `R$ ${entradasResumo.valorMes.toFixed(2)}`;
+            totalEntradasElement.textContent = `R$ ${totalEntradas.toFixed(2)}`;
         }
 
-        // Média diária
-        const mediaDiariaElement = document.getElementById('mediaDiaria');
-        if (mediaDiariaElement) {
-            mediaDiariaElement.textContent = `R$ ${entradasResumo.mediaDiaria.toFixed(2)} média/dia`;
+        const qtdEntradasElement = document.getElementById('qtdEntradas');
+        if (qtdEntradasElement) {
+            qtdEntradasElement.textContent = `${entradasMes.length} entradas`;
+        }
+
+        // Contas pagas do mês
+        const contasPagasElement = document.getElementById('contasPagas');
+        if (contasPagasElement) {
+            contasPagasElement.textContent = `R$ ${totalContasPagas.toFixed(2)}`;
+        }
+
+        const qtdContasPagasElement = document.getElementById('qtdContasPagas');
+        if (qtdContasPagasElement) {
+            const contasPagas = contasMes.filter(c => c.status === 'pago');
+            qtdContasPagasElement.textContent = `${contasPagas.length} contas pagas`;
+        }
+
+        // Total contas à pagar
+        const totalContasElement = document.getElementById('totalContas');
+        if (totalContasElement) {
+            totalContasElement.textContent = `R$ ${totalContasAPagar.toFixed(2)}`;
+        }
+
+        // Contas vencidas
+        const dataAtual = new Date();
+        const contasVencidas = contasMes.filter(c => {
+            if (c.status === 'pago') return false;
+            const dataVenc = new Date(c.dataVencimento);
+            return dataVenc < dataAtual;
+        });
+
+        const contasVencidasElement = document.getElementById('contasVencidas');
+        if (contasVencidasElement) {
+            contasVencidasElement.textContent = `${contasVencidas.length} contas vencidas`;
         }
     }
 
