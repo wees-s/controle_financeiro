@@ -64,8 +64,8 @@ Sistema desenvolvido para uso local e simplificado. Para dúvidas ou sugestões,
 
 ## Importante
 
-Esse é um projeto para um controle simplificado, ***os dados ficam armazenados diretamente no cachê do navegador***, ou seja, não limpe.
-Para um armazenamento persistente e mais robusto acesse esse repositório: https://github.com/wees-s/PrecificadoraAcougues - Esse repositório se trata do mesmo sistema de controle, aplicado a um uso real, onde os dados precisavam ser mantidos.
+- Esse é um projeto para um controle simplificado, ***os dados ficam armazenados diretamente no cachê do navegador***, ou seja, não limpe.
+- Para um armazenamento persistente e mais robusto acesse esse repositório: https://github.com/wees-s/PrecificadoraAcougues - Esse repositório se trata do mesmo sistema de controle, aplicado a um uso real, onde os dados precisavam ser mantidos.
 
 ---
 
